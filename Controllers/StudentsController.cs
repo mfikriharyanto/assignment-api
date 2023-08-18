@@ -12,4 +12,15 @@ public class StudentsController : ControllerBase
     {
         return Ok(Student.All());
     }
+
+    [HttpGet("{id}")]
+    public ActionResult<Student> GetStudent(string id)
+    {
+        Student? student = Student.All().Find(student => student.Id == id);
+        if (student == null)
+        {
+            return NotFound();
+        }
+        return Ok(student);
+    }
 }
