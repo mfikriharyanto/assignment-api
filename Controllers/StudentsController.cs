@@ -23,4 +23,15 @@ public class StudentsController : ControllerBase
         }
         return Ok(student);
     }
+
+    [HttpPost]
+    public ActionResult<Student> CreateStudent(Student student)
+    {
+        if (student == null)
+            return BadRequest();
+
+        var createdStudent = Student.Add(student);
+
+        return CreatedAtAction(nameof(GetStudent), new { id = createdStudent.Id }, createdStudent);
+    }
 }

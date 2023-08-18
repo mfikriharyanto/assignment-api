@@ -17,4 +17,10 @@ public class Student
     {
         return _students;
     }
+
+    public static Student Add(Student student)
+    {
+        _students.Add(student);
+        return student;
+    }
 }
