@@ -22,4 +22,9 @@ public class Student
         _students.Add(student);
         return student;
     }
+
+    public static void Remove(Student student)
+    {
+        _students.Remove(student);
+    }
 }

@@ -52,4 +52,17 @@ public class StudentsController : ControllerBase
         updatedStudent.Name = student.Name;
         return NoContent();
     }
+
+    [HttpDelete("{id}")]
+    public ActionResult<Student> DeleteStudent(string id)
+    {
+        Student? student = Student.All().Find(student => student.Id == id);
+        if (student == null)
+        {
+            return NotFound();
+        }
+
+        Student.Remove(student);
+        return NoContent();
+    }
 }
