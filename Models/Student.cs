@@ -10,7 +10,6 @@ public class Student
     {
         Id = id;
         Name = name;
-        _students.Add(this);
     }
 
     public static List<Student> All()

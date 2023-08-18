@@ -34,4 +34,22 @@ public class StudentsController : ControllerBase
 
         return CreatedAtAction(nameof(GetStudent), new { id = createdStudent.Id }, createdStudent);
     }
+
+    [HttpPut("{id}")]
+    public ActionResult<Student> UpdateStudent(string id, Student student)
+    {
+        if (id != student.Id)
+        {
+            return BadRequest();
+        }
+
+        Student? updatedStudent = Student.All().Find(student => student.Id == id);
+        if (updatedStudent == null)
+        {
+            return NotFound();
+        }
+
+        updatedStudent.Name = student.Name;
+        return NoContent();
+    }
 }
