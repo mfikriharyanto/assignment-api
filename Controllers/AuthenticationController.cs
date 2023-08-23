@@ -9,7 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 namespace Assignment.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/")]
 public class AuthenticationController : ControllerBase
 {
     private readonly UserManager<IdentityUser> _userManager;
@@ -77,7 +77,7 @@ public class AuthenticationController : ControllerBase
                     Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Iat,
                     DateTime.Now.ToUniversalTime().ToString())
-             }),
+            }),
             Expires = DateTime.UtcNow.AddDays(1),
             Issuer = issuer,
             Audience = audience,
