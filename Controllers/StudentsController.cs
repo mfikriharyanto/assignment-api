@@ -1,5 +1,7 @@
+using Assignment.Api.Data;
 using Assignment.Api.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Assignment.Api.Controllers;
 
@@ -7,58 +9,71 @@ namespace Assignment.Api.Controllers;
 [Route("api/[controller]")]
 public class StudentsController : ControllerBase
 {
-    [HttpGet]
-    public IActionResult Get()
+    private readonly AppDbContext _dbContext;
+
+    public StudentsController(AppDbContext dbContext)
     {
-        return Ok(Student.All());
+        _dbContext = dbContext;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Get()
+    {
+        var students = await _dbContext.Students.ToListAsync();
+        return Ok(students);
     }
 
     [HttpGet("{id:int}")]
-    public IActionResult Get(int id)
+    public async Task<IActionResult> Get(int id)
     {
-        Student? student = Student.All().Find(student => student.Id == id);
-        
+        var student = await _dbContext.Students.FindAsync(id);
+
         if (student == null)
             return NotFound();
-        
+
         return Ok(student);
     }
 
     [HttpPost]
-    public IActionResult Post(Student student)
+    public async Task<IActionResult> Post(Student student)
     {
         if (student == null)
             return BadRequest();
 
-        var createdStudent = Student.Add(student);
+        await _dbContext.Students.AddAsync(student);
+        await _dbContext.SaveChangesAsync();
 
-        return CreatedAtAction("Get", new { id = createdStudent.Id }, createdStudent);
+        return CreatedAtAction("Get", new { id = student.Id }, student);
     }
 
     [HttpPut("{id:int}")]
-    public IActionResult Put(int id, Student student)
+    public async Task<IActionResult> Put(int id, Student student)
     {
-        if (id != student.Id)
-            return BadRequest();
+        var existingStudent = await _dbContext.Students.FindAsync(id);
 
-        Student? updatedStudent = Student.All().Find(student => student.Id == id);
-        
-        if (updatedStudent == null)
+        if (existingStudent == null)
             return NotFound();
 
-        updatedStudent.Name = student.Name;
+        existingStudent.Name = student.Name;
+        existingStudent.Npm = student.Npm;
+
+        _dbContext.Students.Update(existingStudent);
+        await _dbContext.SaveChangesAsync();
+
         return NoContent();
     }
 
     [HttpDelete("{id:int}")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        Student? student = Student.All().Find(student => student.Id == id);
-        
+        var student = await _dbContext.Students.FindAsync(id);
+
         if (student == null)
             return NotFound();
 
-        Student.Remove(student);
+        _dbContext.Students.Remove(student);
+        await _dbContext.SaveChangesAsync();
+
         return NoContent();
     }
 }
