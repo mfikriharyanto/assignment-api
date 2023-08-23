@@ -7,6 +7,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 var conn = builder.Configuration.GetConnectionString("AssignmentContext");
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(conn));
 
