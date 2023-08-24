@@ -36,7 +36,7 @@ public class AuthenticationController : ControllerBase
         if (!isCorrect)
             return BadRequest();
 
-        var jwtToken = GenerateJwtToken(user);
+        var jwtToken = await GenerateJwtToken(user);
         return Ok(jwtToken);
     }
 
@@ -59,27 +59,34 @@ public class AuthenticationController : ControllerBase
         if (!isCreated.Succeeded)
             return BadRequest();
 
-        var jwtToken = GenerateJwtToken(newUser);
+        var jwtToken = await GenerateJwtToken(newUser);
         return Ok(jwtToken);
     }
 
-    private string GenerateJwtToken(IdentityUser user)
+    private async Task<string> GenerateJwtToken(IdentityUser user)
     {
         var issuer = _configuration["Jwt:Issuer"];
         var audience = _configuration["Jwt:Audience"];
         var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]!);
+        var roles = (await _userManager.GetRolesAsync(user)).Where(role => role != "User");
+        var claims = new List<Claim>
+        {
+            new Claim("Id", user.Id),
+            new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(JwtRegisteredClaimNames.Jti,
+                Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.Iat,
+                DateTime.Now.ToUniversalTime().ToString()),
+            new Claim(ClaimTypes.Role, "User")
+        };
+
+        foreach (var role in roles)
+            claims.Add(new Claim(ClaimTypes.Role, role));
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[]
-            {
-                new Claim("Id", user.Id),
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti,
-                    Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Iat,
-                    DateTime.Now.ToUniversalTime().ToString())
-            }),
+            Subject = new ClaimsIdentity(claims),
             Expires = DateTime.UtcNow.AddDays(1),
             Issuer = issuer,
             Audience = audience,
@@ -88,11 +95,11 @@ public class AuthenticationController : ControllerBase
                 SecurityAlgorithms.HmacSha512Signature
             )
         };
+
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);
         var jwtToken = tokenHandler.WriteToken(token);
 
         return jwtToken;
-
     }
 }

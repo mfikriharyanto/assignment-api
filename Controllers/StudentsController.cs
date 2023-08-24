@@ -3,6 +3,7 @@ using Assignment.Api.Models;
 using Assignment.Api.Models.Dtos.Incoming;
 using Assignment.Api.Models.Dtos.Outgoing;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,6 +42,7 @@ public class StudentsController : ControllerBase
         return Ok(studentDto);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Post(CreateStudentDto createStudentDto)
     {
@@ -52,6 +54,7 @@ public class StudentsController : ControllerBase
         return CreatedAtAction("Get", new { id = studentDto.Id }, studentDto);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Put(int id, UpdateStudentDto updateStudentDto)
     {
@@ -68,6 +71,7 @@ public class StudentsController : ControllerBase
         return NoContent();
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
