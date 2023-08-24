@@ -3,13 +3,11 @@ using Assignment.Api.Models;
 using Assignment.Api.Models.Dtos.Incoming;
 using Assignment.Api.Models.Dtos.Outgoing;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Assignment.Api.Controllers;
 
-[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class StudentsController : ControllerBase

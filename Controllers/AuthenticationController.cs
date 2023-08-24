@@ -2,12 +2,14 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Assignment.Api.Models.Dtos.Incoming;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Assignment.Api.Controllers;
 
+[AllowAnonymous]
 [ApiController]
 [Route("api/")]
 public class AuthenticationController : ControllerBase
