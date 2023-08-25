@@ -63,8 +63,7 @@ public class StudentsController : ControllerBase
         if (student == null)
             return NotFound();
 
-        student.Name = updateStudentDto.Name;
-
+        student = _mapper.Map(updateStudentDto, student);
         _dbContext.Students.Update(student);
         await _dbContext.SaveChangesAsync();
 

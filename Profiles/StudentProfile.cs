@@ -9,13 +9,9 @@ public class StudentProfile : Profile
 {
     public StudentProfile()
     {
-        CreateMap<CreateStudentDto, Student>()
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-            .ForMember(dest => dest.Npm, opt => opt.MapFrom(src => src.Npm));
-
-        CreateMap<Student, StudentDto>()
-            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-            .ForMember(dest => dest.Npm, opt => opt.MapFrom(src => src.Npm));
+        CreateMap<CreateStudentDto, Student>();
+        CreateMap<UpdateStudentDto, Student>()
+            .ForMember(dest => dest.Npm, opt => opt.Ignore());
+        CreateMap<Student, StudentDto>();
     }
 }
