@@ -1,11 +1,10 @@
-using Assignment.Api.Data;
 using Assignment.Api.Models;
 using Assignment.Api.Models.Dtos.Incoming;
 using Assignment.Api.Models.Dtos.Outgoing;
+using Assignment.Api.Services.Contracts;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Assignment.Api.Controllers;
 
@@ -13,19 +12,20 @@ namespace Assignment.Api.Controllers;
 [Route("api/[controller]")]
 public class StudentsController : ControllerBase
 {
-    private readonly AppDbContext _dbContext;
     private readonly IMapper _mapper;
+    private readonly IStudentService _service;
 
-    public StudentsController(AppDbContext dbContext, IMapper mapper)
+    public StudentsController(IMapper mapper, IStudentService service)
     {
-        _dbContext = dbContext;
         _mapper = mapper;
+        _service = service;
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> Get()
     {
-        var students = await _dbContext.Students.ToListAsync();
+        var students = await _service.Get();
         var studentsDto = _mapper.Map<IEnumerable<StudentDto>>(students);
         return Ok(studentsDto);
     }
@@ -33,7 +33,7 @@ public class StudentsController : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<IActionResult> Get(int id)
     {
-        var student = await _dbContext.Students.FindAsync(id);
+        var student = await _service.Get(id);
 
         if (student == null)
             return NotFound();
@@ -44,11 +44,10 @@ public class StudentsController : ControllerBase
 
     [Authorize(Roles = "Admin")]
     [HttpPost]
-    public async Task<IActionResult> Post(CreateStudentDto createStudentDto)
+    public IActionResult Post(CreateStudentDto createStudentDto)
     {
         var student = _mapper.Map<Student>(createStudentDto);
-        await _dbContext.Students.AddAsync(student);
-        await _dbContext.SaveChangesAsync();
+        _service.Create(student);
 
         var studentDto = _mapper.Map<StudentDto>(student);
         return CreatedAtAction("Get", new { id = studentDto.Id }, studentDto);
@@ -58,14 +57,13 @@ public class StudentsController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Put(int id, UpdateStudentDto updateStudentDto)
     {
-        var student = await _dbContext.Students.FindAsync(id);
+        var student = await _service.Get(id);
 
         if (student == null)
             return NotFound();
 
         student = _mapper.Map(updateStudentDto, student);
-        _dbContext.Students.Update(student);
-        await _dbContext.SaveChangesAsync();
+        _service.Update(student);
 
         return NoContent();
     }
@@ -74,13 +72,12 @@ public class StudentsController : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var student = await _dbContext.Students.FindAsync(id);
+        var student = await _service.Get(id);
 
         if (student == null)
             return NotFound();
 
-        _dbContext.Students.Remove(student);
-        await _dbContext.SaveChangesAsync();
+        _service.Delete(student);
 
         return NoContent();
     }
